@@ -2,6 +2,8 @@
 
 https://adventofcode.com/2024
 
+My attempts will have a bias toward readability and functional programming. I don't care that much about performance and least number of lines/characters
+
 # Node setup
 
 Easy setup now with node v23!
