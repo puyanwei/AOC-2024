@@ -1,58 +1,73 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 
-// Types
-type NumberPair = [number, number]
-type NumberCount = Map<number, number>
+// Types and constants
+type DigitMatch = {
+  value: number
+  index: number
+}
+
+const NUMBER_WORDS = {
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+} as const
 
 // Pure functions
 const readInputFile = (filename: string): string => {
   return readFileSync(join(__dirname, filename), "utf-8")
 }
 
-const parseInput = (input: string): NumberPair[] => {
-  return input
-    .trim()
-    .split("\n")
-    .map((line) => {
-      const [left, right] = line.trim().split(/\s+/)
-      return [parseInt(left), parseInt(right)] as NumberPair
-    })
+const findAllDigits = (line: string): DigitMatch[] => {
+  const matches: DigitMatch[] = []
+
+  // Find numeric digits
+  ;[...line].forEach((char, index) => {
+    if (/\d/.test(char)) {
+      matches.push({ value: parseInt(char), index })
+    }
+  })
+
+  // Find spelled-out numbers
+  Object.entries(NUMBER_WORDS).forEach(([word, value]) => {
+    let pos = 0
+    while ((pos = line.indexOf(word, pos)) !== -1) {
+      matches.push({ value, index: pos })
+      pos += 1 // Allow overlapping matches like "oneight"
+    }
+  })
+
+  return matches.sort((a, b) => a.index - b.index)
 }
 
-const countOccurrences = (numbers: number[]): NumberCount => {
-  return numbers.reduce((count, num) => {
-    count.set(num, (count.get(num) || 0) + 1)
-    return count
-  }, new Map<number, number>())
-}
+const getCalibrationValue = (line: string): number => {
+  const digits = findAllDigits(line)
+  if (digits.length === 0) return 0
 
-const calculateSimilarityScore = (pairs: NumberPair[]): number => {
-  // Split pairs into left and right columns
-  const leftNumbers = pairs.map(([left]) => left)
-  const rightNumbers = pairs.map(([, right]) => right)
+  const firstDigit = digits[0].value
+  const lastDigit = digits[digits.length - 1].value
 
-  // Count occurrences in right list
-  const rightCounts = countOccurrences(rightNumbers)
-
-  // Calculate similarity score
-  return leftNumbers.reduce((score, leftNum) => {
-    const occurrences = rightCounts.get(leftNum) || 0
-    return score + leftNum * occurrences
-  }, 0)
+  return firstDigit * 10 + lastDigit
 }
 
 const solve = (inputFile: string): number => {
-  // Read and parse input
   const input = readInputFile(inputFile)
-  const pairs = parseInput(input)
 
-  // Calculate similarity score
-  return calculateSimilarityScore(pairs)
+  return input
+    .trim()
+    .split("\n")
+    .map(getCalibrationValue)
+    .reduce((sum, value) => sum + value, 0)
 }
 
 // Execute solution
 const result = solve("data.txt")
-console.log("Similarity score:", result)
+console.log("Sum of calibration values:", result)
 
 export { solve }
