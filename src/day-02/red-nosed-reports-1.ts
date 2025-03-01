@@ -8,7 +8,7 @@ export const reports = resolvedData.reduce((prev, current) => {
   return increasesInNumber(current) && !hasGapHigherThanN(current, 3) ? (prev += 1) : prev
 }, 0)
 
-function increasesInNumber(array: number[]): boolean {
+export function increasesInNumber(array: number[]): boolean {
   // check for duplicate neighbours in the array
   const isDuplicateNeighbours = array.some((element, index) => {
     const firstDigit = array[index - 1]
@@ -36,7 +36,7 @@ function increasesInNumber(array: number[]): boolean {
   return false
 }
 
-function hasGapHigherThanN(array: number[], gap: number) {
+export function hasGapHigherThanN(array: number[], gap: number) {
   return array.some((element, index) => {
     const firstDigit = array[index - 1]
     const secondDigit = element
