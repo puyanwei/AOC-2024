@@ -13,61 +13,26 @@ IDEA 3
 - Needs figuring out how this would work for diagonals
 */
 
+const movementDirections = [
+  { name: "Right", rowStep: 0, colStep: 1 },
+  { name: "Left", rowStep: 0, colStep: -1 },
+  { name: "Down", rowStep: 1, colStep: 0 },
+  { name: "Up", rowStep: -1, colStep: 0 },
+  { name: "Diagonal Down-Right", rowStep: 1, colStep: 1 },
+  { name: "Diagonal Up-Left", rowStep: -1, colStep: -1 },
+  { name: "Diagonal Down-Left", rowStep: 1, colStep: -1 },
+  { name: "Diagonal Up-Right", rowStep: -1, colStep: 1 },
+]
+
 const data = importFromTextFileAndSplitByNewLine("day-04/data.txt")
 export const wordSearchNumber = countMatchedWords(data, "xmas")
 
 function findWordInGrid(grid: (string | null)[][], word: string): number {
-  const wordLength = word.length
-  const lowerWord = word.toLowerCase()
-  const foundPositions = new Set<string>()
-
-  const movementDirections = [
-    { name: "Right", rowStep: 0, colStep: 1 },
-    { name: "Left", rowStep: 0, colStep: -1 },
-    { name: "Down", rowStep: 1, colStep: 0 },
-    { name: "Up", rowStep: -1, colStep: 0 },
-    { name: "Diagonal Down-Right", rowStep: 1, colStep: 1 },
-    { name: "Diagonal Up-Left", rowStep: -1, colStep: -1 },
-    { name: "Diagonal Down-Left", rowStep: 1, colStep: -1 },
-    { name: "Diagonal Up-Right", rowStep: -1, colStep: 1 },
-  ]
-
-  const getPositionKey = (positions: string[]): string => positions.join("|")
-
-  const isNewMatch = (positionKey: string): boolean => {
-    if (foundPositions.has(positionKey)) return false
-    foundPositions.add(positionKey)
-    return true
-  }
-
-  const collectLettersInDirection = (
-    startRow: number,
-    startCol: number,
-    direction: { rowStep: number; colStep: number }
-  ): { letters: string; positions: string[] } => {
-    const positions: string[] = []
-    const letters = Array.from({ length: wordLength }, (_, index) => {
-      const newRow = startRow + direction.rowStep * index
-      const newCol = startCol + direction.colStep * index
-      positions.push(`${newRow},${newCol}`)
-      return grid[newRow]?.[newCol]?.toLowerCase() ?? null
-    }).join("")
-
-    return { letters, positions }
-  }
-
-  const checkDirection = (
-    row: number,
-    col: number,
-    direction: (typeof movementDirections)[0]
-  ): number => {
-    const { letters, positions } = collectLettersInDirection(row, col, direction)
-    if (letters === lowerWord && isNewMatch(getPositionKey(positions))) return 1
-    return 0
-  }
-
   const checkAllDirections = (row: number, col: number): number =>
-    movementDirections.reduce((count, direction) => count + checkDirection(row, col, direction), 0)
+    movementDirections.reduce(
+      (count, direction) => count + checkDirection({ row, col, direction, grid, word }),
+      0
+    )
 
   const getAllPositions = (): [number, number][] =>
     grid.flatMap((row, rowIndex) =>
@@ -83,4 +48,59 @@ function countMatchedWords(data: string[], word: string): number {
 
   const grid = data.map((row) => [...row])
   return findWordInGrid(grid, word)
+}
+
+function getPositionKey(positions: string[]): string {
+  return positions.join("|")
+}
+
+function isNewMatch(positionKey: string, foundPositions: Set<string>): boolean {
+  if (foundPositions.has(positionKey)) return false
+  foundPositions.add(positionKey)
+  return true
+}
+
+type CollectLettersInDirectionParams = {
+  row: number
+  col: number
+  direction: { rowStep: number; colStep: number }
+  wordLength: number
+  grid: (string | null)[][]
+}
+
+function collectLettersInDirection({
+  row: startRow,
+  col: startCol,
+  direction,
+  wordLength,
+  grid,
+}: CollectLettersInDirectionParams): { letters: string; positions: string[] } {
+  const positions: string[] = []
+  const letters = Array.from({ length: wordLength }, (_, index) => {
+    const newRow = startRow + direction.rowStep * index
+    const newCol = startCol + direction.colStep * index
+    positions.push(`${newRow},${newCol}`)
+    return grid[newRow]?.[newCol]?.toLowerCase() ?? null
+  }).join("")
+
+  return { letters, positions }
+}
+
+type CheckDirectionParams = Omit<CollectLettersInDirectionParams, "wordLength"> & {
+  word: string
+}
+
+function checkDirection({ row, col, direction, grid, word }: CheckDirectionParams): number {
+  const wordLength = word.length
+  const lowerWord = word.toLowerCase()
+  const foundPositions = new Set<string>()
+  const { letters, positions } = collectLettersInDirection({
+    row,
+    col,
+    direction,
+    wordLength,
+    grid,
+  })
+  if (letters === lowerWord && isNewMatch(getPositionKey(positions), foundPositions)) return 1
+  return 0
 }
