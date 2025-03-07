@@ -5,6 +5,7 @@ import { updatedReports } from "./day-02/red-nosed-reports-2"
 import { mulNumber } from "./day-03/mull-it-over-1"
 import { newMulNumber } from "./day-03/mull-it-over-2"
 import { wordSearchNumber } from "./day-04/ceres-search-1"
+import { crossesNumber } from "./day-04/ceres-search-2"
 
 // console.log(`The total distance is ${totalDistance}`)
 // console.log(`The similarity score is ${score}`)
@@ -15,4 +16,5 @@ import { wordSearchNumber } from "./day-04/ceres-search-1"
 // console.log(`adding up all the mul values is ${mulNumber}`)
 // console.log(`the new mul values are ${newMulNumber}`)
 
-console.log(`The total number of xmas words found are ${wordSearchNumber}`)
+// console.log(`The total number of xmas words found are ${wordSearchNumber}`)
+console.log(`The total number of crosses found are ${crossesNumber}`)
