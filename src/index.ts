@@ -16,5 +16,5 @@ import { crossesNumber } from "./day-04/ceres-search-2"
 // console.log(`adding up all the mul values is ${mulNumber}`)
 // console.log(`the new mul values are ${newMulNumber}`)
 
-// console.log(`The total number of xmas words found are ${wordSearchNumber}`)
+console.log(`The total number of xmas words found are ${wordSearchNumber}`)
 console.log(`The total number of crosses found are ${crossesNumber}`)
